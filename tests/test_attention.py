@@ -56,9 +56,9 @@ def _test_flash_forward_pass(impl, device="cpu", is_causal=False):
     torch.testing.assert_close(o, o_ref, rtol=1e-2, atol=1e-2)
     torch.testing.assert_close(l, l_ref, rtol=1e-2, atol=1e-2)
 
-
-def test_flash_forward_pass_pytorch():
-    _test_flash_forward_pass(get_flashattention_autograd_function_pytorch().apply)
+@pytest.mark.parametrize("is_causal", [False, True])
+def test_flash_forward_pass_pytorch(is_causal):
+    _test_flash_forward_pass(get_flashattention_autograd_function_pytorch().apply, is_causal=is_causal)
 
 
 @pytest.mark.skipif(
@@ -77,11 +77,12 @@ def flash_backward_results(impl, is_causal, device=None):
     return q.grad, k.grad, v.grad
 
 
-def test_flash_backward_pytorch():
-    dq_expected, dk_expected, dv_expected = flash_backward_results(lambda *args: _attention_and_lse(*args)[0], False)
+@pytest.mark.parametrize("is_causal", [False, True])
+def test_flash_backward_pytorch(is_causal):
+    dq_expected, dk_expected, dv_expected = flash_backward_results(lambda *args: _attention_and_lse(*args)[0], is_causal)
 
     q, k, v, do = _make_attn_inputs()
-    get_flashattention_autograd_function_pytorch().apply(q, k, v, False).backward(do)
+    get_flashattention_autograd_function_pytorch().apply(q, k, v, is_causal).backward(do)
 
     torch.testing.assert_close(dq_expected, q.grad, rtol=1e-2, atol=1e-2)
     torch.testing.assert_close(dk_expected, k.grad, rtol=1e-2, atol=1e-2)
