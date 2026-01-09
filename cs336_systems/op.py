@@ -28,8 +28,15 @@ All ranks have identical gradients (via DDP all-reduce)
 Owner rank:
 Updates optimizer state (m, v)
 Computes update Δp
-Owner rank broadcasts Δp
+Owner rank all gather Δp
 All ranks apply p += Δp
+
+ZeRO stage 1: optimizer state sharding, everyone has parameters + gradients
+Step 1: everyone computes a full gradient on their subset of the batch
+Step 2: reducescatter the gradients (param communication)
+Step 3: each machine updates their parameters
+Step 4: all gather the parameters (param communication)
+Communication: 2 * param
 """
 
 
