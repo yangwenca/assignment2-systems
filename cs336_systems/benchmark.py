@@ -1,8 +1,6 @@
 import argparse
-import os
 import timeit
 
-import numpy as np
 import torch
 
 from cs336_basics.model import BasicsTransformerLM

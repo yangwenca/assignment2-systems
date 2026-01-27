@@ -1,7 +1,7 @@
 import torch
 import torch.distributed as dist
 
-from typing import Any, Callable, Dict, Optional, Type
+from typing import Any, Dict, Type
 
 
 """
